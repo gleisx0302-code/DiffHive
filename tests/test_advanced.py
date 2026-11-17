@@ -3,12 +3,12 @@ import tempfile
 import time
 import unittest
 
-from evoagent.config import Settings
-from evoagent.evolution import EvolutionEngine, RegressionEvaluator
-from evoagent.fixer import SafeFixer
-from evoagent.models import Finding, Severity
-from evoagent.service import ReviewService
-from evoagent.store import TaskStore
+from diffhive.config import Settings
+from diffhive.evolution import EvolutionEngine, RegressionEvaluator
+from diffhive.fixer import SafeFixer
+from diffhive.models import Finding, Severity
+from diffhive.service import ReviewService
+from diffhive.store import TaskStore
 from agentic_fake import enable_agentic_service
 
 

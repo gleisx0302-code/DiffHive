@@ -3,14 +3,14 @@ import tempfile
 import unittest
 import json
 
-from evoagent.agentic_core import BoundedRole
-from evoagent.context_manager import ContextManager
-from evoagent.memory import MemoryManager
-from evoagent.runtime import (
+from diffhive.agentic_core import BoundedRole
+from diffhive.context_manager import ContextManager
+from diffhive.memory import MemoryManager
+from diffhive.runtime import (
     AgentRuntime, AgentTool, RuntimeNode, ToolProtocolError, ToolRegistry,
 )
-from evoagent.store import TaskStore, utc_now
-from evoagent.telemetry import ExecutionLedger
+from diffhive.store import TaskStore, utc_now
+from diffhive.telemetry import ExecutionLedger
 
 
 class RuntimeMemoryTests(unittest.TestCase):

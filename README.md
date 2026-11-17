@@ -1,6 +1,6 @@
-# EvoAgent
+# DiffHive
 
-**EvoAgent is a self-hosted, multi-agent pull-request reviewer.** It reads unified diffs, coordinates a hierarchical team of LLM agents, grounds every high-risk claim in repository evidence, and can post its review back to GitHub or open a verified repair PR.
+**DiffHive is a self-hosted, multi-agent pull-request reviewer.** It reads unified diffs, coordinates a hierarchical team of LLM agents, grounds every high-risk claim in repository evidence, and can post its review back to GitHub or open a verified repair PR.
 
 The project is intentionally built on the Python standard library: the HTTP server, agent runtime, persistence layer, GitHub client, and web dashboard do not require a web framework or an orchestration framework.
 
@@ -33,7 +33,7 @@ HTTP API / GitHub Webhook
       |         TaskQueue  (in-memory ACK / Redis Streams + DLQ)
       v
     ReviewHarness
-      |  EvoAgent Runtime: budgets, retries, cancellation, checkpoints, resume
+      |  DiffHive Runtime: budgets, retries, cancellation, checkpoints, resume
       |
       +-- DiffParser
       +-- Deterministic rule scanners
@@ -87,10 +87,10 @@ python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 
-export EVOAGENT_LLM_PROVIDER=deepseek
-export EVOAGENT_DEEPSEEK_API_KEY="<your-api-key>"
+export DIFFHIVE_LLM_PROVIDER=deepseek
+export DIFFHIVE_DEEPSEEK_API_KEY="<your-api-key>"
 
-python -m evoagent
+python -m diffhive
 ```
 
 The service listens on `http://127.0.0.1:8080` by default. Open `/` for the dashboard and `/health` for the health check.
@@ -100,36 +100,36 @@ The service listens on `http://127.0.0.1:8080` by default. Open `/` for the dash
 DeepSeek official API:
 
 ```bash
-export EVOAGENT_LLM_PROVIDER=deepseek
-export EVOAGENT_DEEPSEEK_API_KEY="<deepseek-api-key>"
+export DIFFHIVE_LLM_PROVIDER=deepseek
+export DIFFHIVE_DEEPSEEK_API_KEY="<deepseek-api-key>"
 ```
 
 OpenRouter free model presets:
 
 ```bash
-export EVOAGENT_LLM_PROVIDER=openrouter-deepseek-free
-export EVOAGENT_OPENROUTER_API_KEY="<openrouter-api-key>"
+export DIFFHIVE_LLM_PROVIDER=openrouter-deepseek-free
+export DIFFHIVE_OPENROUTER_API_KEY="<openrouter-api-key>"
 ```
 
 Any OpenAI-compatible endpoint:
 
 ```bash
-export EVOAGENT_LLM_PROVIDER=custom
-export EVOAGENT_LLM_BASE_URL="https://example.com/v1"
-export EVOAGENT_LLM_API_KEY="<token>"
-export EVOAGENT_LLM_MODEL="<model-name>"
+export DIFFHIVE_LLM_PROVIDER=custom
+export DIFFHIVE_LLM_BASE_URL="https://example.com/v1"
+export DIFFHIVE_LLM_API_KEY="<token>"
+export DIFFHIVE_LLM_MODEL="<model-name>"
 ```
 
-The service can start without a model (for health checks and the dashboard), but a configured model is required before reviews can run. Secrets are read from environment variables or a local `.env`; never commit them. A root-level `.env` takes priority over `evoagent/.env`, and real environment variables take priority over both.
+The service can start without a model (for health checks and the dashboard), but a configured model is required before reviews can run. Secrets are read from environment variables or a local `.env`; never commit them. A root-level `.env` takes priority over `diffhive/.env`, and real environment variables take priority over both.
 
 ### Enable authentication
 
 ```bash
-export EVOAGENT_AUTH_REQUIRED=true
-export EVOAGENT_AUTH_SECRET="<at-least-32-random-bytes>"
-export EVOAGENT_BOOTSTRAP_ADMIN_USERNAME=admin
-export EVOAGENT_BOOTSTRAP_ADMIN_PASSWORD="<at-least-10-characters>"
-python -m evoagent
+export DIFFHIVE_AUTH_REQUIRED=true
+export DIFFHIVE_AUTH_SECRET="<at-least-32-random-bytes>"
+export DIFFHIVE_BOOTSTRAP_ADMIN_USERNAME=admin
+export DIFFHIVE_BOOTSTRAP_ADMIN_PASSWORD="<at-least-10-characters>"
+python -m diffhive
 ```
 
 The bootstrap admin is only created if the username does not already exist.
@@ -165,7 +165,7 @@ Add `?async=true` to `POST /v1/reviews` to enqueue the review instead of running
 
 ## GitHub Integration
 
-EvoAgent accepts GitHub repository webhooks directly; no GitHub App is required for the basic flow.
+DiffHive accepts GitHub repository webhooks directly; no GitHub App is required for the basic flow.
 
 ```text
 GitHub Pull request event
@@ -180,13 +180,13 @@ http://127.0.0.1:8080/webhooks/github
 Asynchronous review task
 ```
 
-### 1. Configure EvoAgent
+### 1. Configure DiffHive
 
 ```bash
-export EVOAGENT_GITHUB_WEBHOOK_SECRET="<random-webhook-secret>"
-export EVOAGENT_GITHUB_TOKEN="<fine-grained-PAT>"        # optional
-export EVOAGENT_AUTO_POST_REVIEW=true                    # optional
-python -m evoagent
+export DIFFHIVE_GITHUB_WEBHOOK_SECRET="<random-webhook-secret>"
+export DIFFHIVE_GITHUB_TOKEN="<fine-grained-PAT>"        # optional
+export DIFFHIVE_AUTO_POST_REVIEW=true                    # optional
+python -m diffhive
 ```
 
 Supported `pull_request` actions are `opened`, `reopened`, and `synchronize`. Other actions are acknowledged and ignored. The webhook route authenticates with its HMAC signature, not with a dashboard bearer token.
@@ -217,16 +217,16 @@ Repository **Settings → Webhooks → Add webhook**:
 
 - **Payload URL**: `https://<public-host>/webhooks/github`
 - **Content type**: `application/json`
-- **Secret**: the same value as `EVOAGENT_GITHUB_WEBHOOK_SECRET`
+- **Secret**: the same value as `DIFFHIVE_GITHUB_WEBHOOK_SECRET`
 - **SSL verification**: enabled
 - **Events**: select individual events → **Pull requests**
 - **Active**: checked
 
-Successful deliveries return `202`. EvoAgent also supports a GitHub App installation flow (`/github/install` and `/github/setup`) when App credentials are configured.
+Successful deliveries return `202`. DiffHive also supports a GitHub App installation flow (`/github/install` and `/github/setup`) when App credentials are configured.
 
 ### Verified auto-fixes
 
-When enabled, EvoAgent can create verified repairs on a new `evoagent/fix-pr-*` branch and open a **draft PR**. It never writes directly to the source branch. Repairs are limited to deterministic rules such as debug output, `shell=True`, and hardcoded Python credentials, and are published only after compilation and optional test gates pass.
+When enabled, DiffHive can create verified repairs on a new `diffhive/fix-pr-*` branch and open a **draft PR**. It never writes directly to the source branch. Repairs are limited to deterministic rules such as debug output, `shell=True`, and hardcoded Python credentials, and are published only after compilation and optional test gates pass.
 
 ---
 
@@ -239,7 +239,7 @@ When enabled, EvoAgent can create verified repairs on a new `evoagent/fix-pr-*` 
 | Correctness/Reliability | state, exceptions, concurrency, resources, compatibility, tests | full repository tool suite (high risk only) |
 | Critic | blind challenge, counterexamples, evidence and severity objections | full repository tool suite (high risk only) |
 
-Roles can be restricted with `EVOAGENT_ENABLED_AGENTS` (the Lead is mandatory). Budgets are configurable per role through `EVOAGENT_AGENT_TOKEN_BUDGET`, `EVOAGENT_AGENT_TIME_BUDGET_SECONDS`, and context-window settings.
+Roles can be restricted with `DIFFHIVE_ENABLED_AGENTS` (the Lead is mandatory). Budgets are configurable per role through `DIFFHIVE_AGENT_TOKEN_BUDGET`, `DIFFHIVE_AGENT_TIME_BUDGET_SECONDS`, and context-window settings.
 
 ### Repository tools
 
@@ -286,7 +286,7 @@ Reload disk skills with `POST /v1/skills/reload`. Versioned Skills can be evalua
 
 ## Evolution and Evaluation
 
-EvoAgent closes the loop between review failures and future reviews:
+DiffHive closes the loop between review failures and future reviews:
 
 1. Users report `false_positive`, `missed_issue`, `bad_fix`, or `accepted` feedback.
 2. Failure cases can produce prompt candidates or versioned `SKILL.md` artifacts.
@@ -365,7 +365,7 @@ Request limits (defaults): diff ≤ 1 MiB, runtime ≤ 8 steps and 120 seconds p
 - **Skill sandboxing** — no symlinks, no path traversal, size/count limits, and a synthetic `read_skill_resource` tool restricted to selected packages.
 - **Auditability** — immutable tenant audit records for reviews, fixes, feedback, evolution, rollouts, and queue operations.
 
-Never expose the dashboard and API publicly with authentication disabled. Use a strong `EVOAGENT_AUTH_SECRET`, a separate webhook secret, and a reverse proxy that publishes only the routes you intend to expose.
+Never expose the dashboard and API publicly with authentication disabled. Use a strong `DIFFHIVE_AUTH_SECRET`, a separate webhook secret, and a reverse proxy that publishes only the routes you intend to expose.
 
 ---
 
@@ -381,20 +381,20 @@ docker compose up --build
 
 The Compose stack starts:
 
-- `evoagent` on port `8080`
+- `diffhive` on port `8080`
 - PostgreSQL 16 for durable state
 - Redis 7 for Streams-based queuing
 
 ### Local production mode
 
-Set `EVOAGENT_DATABASE_URL` to a PostgreSQL DSN and `EVOAGENT_REDIS_URL` to a Redis URL. Leave both empty to use SQLite plus the in-process acknowledged queue.
+Set `DIFFHIVE_DATABASE_URL` to a PostgreSQL DSN and `DIFFHIVE_REDIS_URL` to a Redis URL. Leave both empty to use SQLite plus the in-process acknowledged queue.
 
 ---
 
 ## Project Layout
 
 ```text
-evoagent/
+diffhive/
   api.py                 HTTP routing, auth, webhook endpoint, dashboard assets
   service.py             application wiring and use cases
   harness.py             stateful review workflow

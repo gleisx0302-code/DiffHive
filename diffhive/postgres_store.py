@@ -1,7 +1,7 @@
 """PostgreSQL persistence backend.
 
 The implementation mirrors TaskStore's public API and is selected when
-EVOAGENT_DATABASE_URL starts with postgres. psycopg is an optional production
+DIFFHIVE_DATABASE_URL starts with postgres. psycopg is an optional production
 dependency so local development can remain zero-config.
 """
 import hashlib

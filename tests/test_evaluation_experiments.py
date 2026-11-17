@@ -1,20 +1,20 @@
 import json
 import unittest
 
-from evoagent.diff_parser import parse_unified_diff
-from evoagent.evaluation_experiments import (
+from diffhive.diff_parser import parse_unified_diff
+from diffhive.evaluation_experiments import (
     AccuracyExperimentSuite,
     load_controlled_pr_cases,
     SkillEvolutionExperimentSuite,
     prepare_controlled_experiment_cases,
 )
-from evoagent.evaluation_v2 import (
+from diffhive.evaluation_v2 import (
     FairAblationSuite,
     experiment_reviewer_factories,
 )
-from evoagent.models import Finding, Severity
-from evoagent.reviewer import Reviewer
-from evoagent.skill_evolution import SkillEvolutionEngine
+from diffhive.models import Finding, Severity
+from diffhive.reviewer import Reviewer
+from diffhive.skill_evolution import SkillEvolutionEngine
 
 
 DIFF = (
@@ -84,7 +84,7 @@ class ArtifactAwareReviewer(Reviewer):
     name = "artifact-aware"
 
     def __init__(self, artifact):
-        self.enabled = "evoagent:learned:LEARN-MISSING:start" in (
+        self.enabled = "diffhive:learned:LEARN-MISSING:start" in (
             artifact["files"]["SKILL.md"]
         )
 

@@ -54,7 +54,7 @@ class RepairVerifier:
             key: value for key, value in os.environ.items()
             if key in {"PATH", "SYSTEMROOT", "WINDIR", "LANG", "LC_ALL", "TMP", "TEMP"}
         }
-        with tempfile.TemporaryDirectory(prefix="evoagent-verify-") as temp:
+        with tempfile.TemporaryDirectory(prefix="diffhive-verify-") as temp:
             env["TMPDIR"] = temp
             try:
                 result = subprocess.run(
@@ -74,7 +74,7 @@ class RepairVerifier:
 
     def verify_archive(self, archive: bytes, files: Dict[str, str]) -> dict:
         """Verify changed files inside an isolated copy of the complete repository."""
-        with tempfile.TemporaryDirectory(prefix="evoagent-repair-") as root:
+        with tempfile.TemporaryDirectory(prefix="diffhive-repair-") as root:
             with zipfile.ZipFile(BytesIO(archive)) as bundle:
                 for member in bundle.infolist():
                     normalized = os.path.normpath(member.filename).replace("\\", "/")

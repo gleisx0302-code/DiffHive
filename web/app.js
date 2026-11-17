@@ -21,7 +21,7 @@ const stateLabels = {
 
 let selectedTask = null;
 let selectedTaskData = null;
-let accessToken = localStorage.getItem("evoagent_token") || "";
+let accessToken = localStorage.getItem("diffhive_token") || "";
 let toastTimer = null;
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
@@ -100,7 +100,7 @@ function show(view, updateHash = true) {
   });
   $(`#view-${view}`).classList.add("active");
   $("#page-title").textContent = titles[view];
-  document.title = `${titles[view]} · EvoAgent`;
+  document.title = `${titles[view]} · DiffHive`;
   if (updateHash) history.replaceState(null, "", `#${view}`);
 
   if (view === "tasks") loadTasks();
@@ -552,7 +552,7 @@ $("#login-form").addEventListener("submit", async (event) => {
       }),
     });
     accessToken = data.access_token;
-    localStorage.setItem("evoagent_token", accessToken);
+    localStorage.setItem("diffhive_token", accessToken);
     $("#login-overlay").classList.add("hidden");
     $("#logout").classList.remove("hidden");
     $("#login-error").textContent = "";
@@ -566,7 +566,7 @@ $("#login-form").addEventListener("submit", async (event) => {
 
 $("#logout").addEventListener("click", () => {
   accessToken = "";
-  localStorage.removeItem("evoagent_token");
+  localStorage.removeItem("diffhive_token");
   $("#login-overlay").classList.remove("hidden");
   $("#logout").classList.add("hidden");
 });

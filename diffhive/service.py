@@ -374,7 +374,7 @@ class ReviewService:
                 client = self.github_client_for_installation(payload.get("installation_id"))
                 client.upsert_comment(
                     payload["github_issue_url"], to_markdown(report.to_dict()),
-                    "<!-- evoagent-review:%s -->" % task_id,
+                    "<!-- diffhive-review:%s -->" % task_id,
                 )
         except Exception:
             metrics.inc("reviews_failed_total")

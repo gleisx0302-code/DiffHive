@@ -1,7 +1,7 @@
 import unittest
 
-from evoagent.diff_parser import parse_unified_diff
-from evoagent.reviewer import LocalRuleReviewer
+from diffhive.diff_parser import parse_unified_diff
+from diffhive.reviewer import LocalRuleReviewer
 
 
 class LocalReviewerTests(unittest.TestCase):

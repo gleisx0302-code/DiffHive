@@ -1,6 +1,6 @@
 import unittest
 
-from evoagent.diff_parser import parse_unified_diff
+from diffhive.diff_parser import parse_unified_diff
 
 
 DIFF = """diff --git a/app.py b/app.py

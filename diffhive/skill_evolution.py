@@ -54,13 +54,13 @@ def _migrate_legacy_artifact(artifact: dict, expected_name: str) -> dict:
         if not match:
             continue
         lines.extend([
-            "<!-- evoagent:learned:%s:start -->" % rule_id,
+            "<!-- diffhive:learned:%s:start -->" % rule_id,
             "## %s" % rule_id, "",
             "Inspect added behavior equivalent to `%s`." % match,
             "Report `%s` at `%s` severity only when context confirms the defect."
             % (rule_id, str(rule.get("severity", "medium"))),
             "Cite the changed line, explain impact, propose a fix, and require a test.",
-            "<!-- evoagent:learned:%s:end -->" % rule_id, "",
+            "<!-- diffhive:learned:%s:end -->" % rule_id, "",
         ])
     return {"name": name, "files": {"SKILL.md": "\n".join(lines).strip() + "\n"}}
 
@@ -209,7 +209,7 @@ class SkillEvolutionEngine:
             evidence = str(finding.get("evidence", "")).strip()
             if not evidence or len(evidence) > 240 or "\n" in evidence or "\r" in evidence:
                 continue
-            if "evoagent:learned:%s:start" % rule_id in content:
+            if "diffhive:learned:%s:start" % rule_id in content:
                 continue
             content = content.rstrip() + "\n\n" + cls._learned_block(
                 rule_id, finding, evidence,
@@ -408,7 +408,7 @@ class SkillEvolutionEngine:
                 evidence = self._evidence_from_task(case["task_id"], finding)
             if not evidence or len(evidence) > 240 or "\n" in evidence or "\r" in evidence:
                 continue
-            if "evoagent:learned:%s:start" % rule_id in content:
+            if "diffhive:learned:%s:start" % rule_id in content:
                 continue
             content = content.rstrip() + "\n\n" + self._learned_block(rule_id, finding, evidence)
             learned.append(rule_id)
@@ -439,20 +439,20 @@ class SkillEvolutionEngine:
         evidence = evidence.replace("`", "'")
         severity = str(finding.get("severity", "medium")).lower()
         return "\n".join([
-            "<!-- evoagent:learned:%s:start -->" % rule_id,
+            "<!-- diffhive:learned:%s:start -->" % rule_id,
             "## Confirmed %s guidance" % rule_id, "",
             "Inspect added behavior equivalent to `%s`." % evidence,
             "Report `%s` at `%s` severity only when repository context confirms the defect."
             % (rule_id, severity),
             "Cite the changed line, explain impact, propose a minimal fix, and require a regression test.",
-            "<!-- evoagent:learned:%s:end -->" % rule_id, "",
+            "<!-- diffhive:learned:%s:end -->" % rule_id, "",
         ])
 
     @staticmethod
     def _remove_learned_block(content: str, rule_id: str) -> str:
         pattern = re.compile(
-            r"\n*<!-- evoagent:learned:%s:start -->.*?"
-            r"<!-- evoagent:learned:%s:end -->\n*" % (re.escape(rule_id), re.escape(rule_id)),
+            r"\n*<!-- diffhive:learned:%s:start -->.*?"
+            r"<!-- diffhive:learned:%s:end -->\n*" % (re.escape(rule_id), re.escape(rule_id)),
             re.DOTALL,
         )
         return pattern.sub("\n", content).rstrip() + "\n"

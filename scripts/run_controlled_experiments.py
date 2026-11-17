@@ -9,19 +9,19 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-from evoagent.evaluation_experiments import (  # noqa: E402
+from diffhive.evaluation_experiments import (  # noqa: E402
     AccuracyExperimentSuite,
     ControlledExperimentClient,
     ControlledSkillReviewer,
     SkillEvolutionExperimentSuite,
     prepare_controlled_experiment_cases,
 )
-from evoagent.evaluation_harness import load_jsonl  # noqa: E402
-from evoagent.evaluation_v2 import (  # noqa: E402
+from diffhive.evaluation_harness import load_jsonl  # noqa: E402
+from diffhive.evaluation_v2 import (  # noqa: E402
     FairAblationSuite,
     experiment_reviewer_factories,
 )
-from evoagent.skill_evolution import SkillEvolutionEngine  # noqa: E402
+from diffhive.skill_evolution import SkillEvolutionEngine  # noqa: E402
 
 
 def render_summary(report):
@@ -29,7 +29,7 @@ def render_summary(report):
         return "%.2f%%" % (100.0 * float(value))
 
     lines = [
-        "# EvoAgent 100 条受控集实验结果", "",
+        "# DiffHive 100 条受控集实验结果", "",
         "> 执行模式：`controlled-offline-no-llm`。本报告没有调用大模型，",
         "> 只验证确定性规则、Agent 编排计数和 Skill 选择门禁。", "",
         "## 数据", "",

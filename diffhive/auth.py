@@ -72,7 +72,7 @@ class AuthManager:
         self.default_tenant_id = default_tenant_id
         if bootstrap_username and bootstrap_password:
             self.store.create_user(
-                str(uuid.uuid5(uuid.NAMESPACE_URL, "evoagent:" + bootstrap_username)),
+                str(uuid.uuid5(uuid.NAMESPACE_URL, "diffhive:" + bootstrap_username)),
                 bootstrap_username, hash_password(bootstrap_password),
                 default_tenant_id, "admin",
             )

@@ -2,8 +2,8 @@ import os
 import tempfile
 import unittest
 
-from evoagent.config import Settings
-from evoagent.service import ReviewService
+from diffhive.config import Settings
+from diffhive.service import ReviewService
 from agentic_fake import enable_agentic_service
 
 

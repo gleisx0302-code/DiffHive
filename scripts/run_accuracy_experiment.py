@@ -9,10 +9,10 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-from evoagent.evaluation_experiments import AccuracyExperimentSuite  # noqa: E402
-from evoagent.evaluation_harness import load_jsonl  # noqa: E402
-from evoagent.evaluation_v2 import ProductArmReviewer  # noqa: E402
-from evoagent.llm import JsonChatClient  # noqa: E402
+from diffhive.evaluation_experiments import AccuracyExperimentSuite  # noqa: E402
+from diffhive.evaluation_harness import load_jsonl  # noqa: E402
+from diffhive.evaluation_v2 import ProductArmReviewer  # noqa: E402
+from diffhive.llm import JsonChatClient  # noqa: E402
 
 
 def main() -> None:
@@ -21,10 +21,10 @@ def main() -> None:
     )
     parser.add_argument("--real-dataset", default="")
     parser.add_argument("--minimum-real-cases", type=int, default=300)
-    parser.add_argument("--base-url", default=os.getenv("EVOAGENT_LLM_BASE_URL", ""))
-    parser.add_argument("--api-key", default=os.getenv("EVOAGENT_LLM_API_KEY", ""))
-    parser.add_argument("--model", default=os.getenv("EVOAGENT_LLM_MODEL", ""))
-    parser.add_argument("--provider", default=os.getenv("EVOAGENT_LLM_PROVIDER", "custom"))
+    parser.add_argument("--base-url", default=os.getenv("DIFFHIVE_LLM_BASE_URL", ""))
+    parser.add_argument("--api-key", default=os.getenv("DIFFHIVE_LLM_API_KEY", ""))
+    parser.add_argument("--model", default=os.getenv("DIFFHIVE_LLM_MODEL", ""))
+    parser.add_argument("--provider", default=os.getenv("DIFFHIVE_LLM_PROVIDER", "custom"))
     parser.add_argument("--timeout", type=int, default=120)
     parser.add_argument("--token-budget", type=int, default=12000)
     parser.add_argument("--time-budget", type=int, default=240)

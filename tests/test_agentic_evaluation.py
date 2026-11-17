@@ -1,14 +1,14 @@
 import json
 import unittest
 
-from evoagent.diff_parser import parse_unified_diff
-from evoagent.review_rules import ContextRuleReviewer
-from evoagent.evaluation_v2 import (
+from diffhive.diff_parser import parse_unified_diff
+from diffhive.review_rules import ContextRuleReviewer
+from diffhive.evaluation_v2 import (
     FairAblationSuite,
     ProductArmReviewer,
     product_reviewer_factories,
 )
-from evoagent.reviewer import LocalRuleReviewer
+from diffhive.reviewer import LocalRuleReviewer
 
 
 DIFF = (

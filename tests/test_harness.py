@@ -2,9 +2,9 @@ import os
 import tempfile
 import unittest
 
-from evoagent.harness import ReviewHarness
-from evoagent.reviewer import LocalRuleReviewer
-from evoagent.store import TaskStore
+from diffhive.harness import ReviewHarness
+from diffhive.reviewer import LocalRuleReviewer
+from diffhive.store import TaskStore
 
 
 class HarnessTests(unittest.TestCase):

@@ -86,7 +86,7 @@ class ControlledSkillReviewer(Reviewer):
         self.artifact = artifact
         content = str((artifact.get("files") or {}).get("SKILL.md", ""))
         self.learned_rules = set(re.findall(
-            r"evoagent:learned:([A-Z][A-Z0-9_-]{1,79}):start", content,
+            r"diffhive:learned:([A-Z][A-Z0-9_-]{1,79}):start", content,
         ))
         self.local = LocalRuleReviewer()
         self.catalog = {}

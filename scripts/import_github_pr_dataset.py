@@ -16,16 +16,16 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-from evoagent.diff_parser import parse_unified_diff  # noqa: E402
-from evoagent.evaluation_harness import validate_case  # noqa: E402
-from evoagent.evaluation_v2 import validate_real_dataset  # noqa: E402
+from diffhive.diff_parser import parse_unified_diff  # noqa: E402
+from diffhive.evaluation_harness import validate_case  # noqa: E402
+from diffhive.evaluation_v2 import validate_real_dataset  # noqa: E402
 
 
 def fetch_diff(repository, pull_request, token=""):
     url = "https://api.github.com/repos/%s/pulls/%d" % (repository, pull_request)
     headers = {
         "Accept": "application/vnd.github.v3.diff",
-        "User-Agent": "evoagent-evaluation-importer",
+        "User-Agent": "diffhive-evaluation-importer",
         "X-GitHub-Api-Version": "2022-11-28",
     }
     if token:

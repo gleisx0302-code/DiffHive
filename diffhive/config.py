@@ -10,7 +10,7 @@ _DOTENV_KEY = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 def load_dotenv(paths: Optional[Iterable[str]] = None) -> None:
     """Load local dotenv files without overriding real process environment values.
 
-    The project-root file has priority over ``evoagent/.env``.  This allows the
+    The project-root file has priority over ``diffhive/.env``.  This allows the
     latter to remain compatible with existing local setups while keeping the
     conventional root-level ``.env`` as the recommended location.
     """
@@ -92,7 +92,7 @@ class Settings:
     deepseek_api_key: str = ""
     openrouter_api_key: str = ""
     openrouter_site_url: str = ""
-    openrouter_app_name: str = "EvoAgent"
+    openrouter_app_name: str = "DiffHive"
     eval_max_cases: int = 5
     eval_min_cases: int = 3
     eval_min_improvement: float = 0.01
@@ -110,7 +110,7 @@ class Settings:
     repair_test_command: str = ""
     repair_verify_timeout_seconds: int = 120
     otel_endpoint: str = ""
-    otel_service_name: str = "evoagent"
+    otel_service_name: str = "diffhive"
     alert_failure_rate: float = 0.20
     alert_min_samples: int = 10
     alert_window_seconds: int = 900
@@ -145,7 +145,7 @@ class Settings:
         if provider == "deepseek":
             api_key = self.deepseek_api_key or self.llm_api_key
             if not api_key:
-                raise ValueError("DeepSeek requires EVOAGENT_DEEPSEEK_API_KEY")
+                raise ValueError("DeepSeek requires DIFFHIVE_DEEPSEEK_API_KEY")
             return {
                 "provider": "deepseek",
                 "base_url": self.llm_base_url or "https://api.deepseek.com",
@@ -157,7 +157,7 @@ class Settings:
         if provider in {"openrouter-deepseek-free", "openrouter_deepseek_free"}:
             api_key = self.openrouter_api_key or self.llm_api_key
             if not api_key:
-                raise ValueError("OpenRouter requires EVOAGENT_OPENROUTER_API_KEY")
+                raise ValueError("OpenRouter requires DIFFHIVE_OPENROUTER_API_KEY")
             headers = {}
             if self.openrouter_site_url:
                 headers["HTTP-Referer"] = self.openrouter_site_url
@@ -174,7 +174,7 @@ class Settings:
         if provider == "openrouter-free":
             api_key = self.openrouter_api_key or self.llm_api_key
             if not api_key:
-                raise ValueError("OpenRouter requires EVOAGENT_OPENROUTER_API_KEY")
+                raise ValueError("OpenRouter requires DIFFHIVE_OPENROUTER_API_KEY")
             headers = {}
             if self.openrouter_site_url:
                 headers["HTTP-Referer"] = self.openrouter_site_url
@@ -191,8 +191,8 @@ class Settings:
         if provider == "custom":
             if not (self.llm_base_url and self.llm_api_key and self.llm_model):
                 raise ValueError(
-                    "Custom LLM requires EVOAGENT_LLM_BASE_URL, "
-                    "EVOAGENT_LLM_API_KEY and EVOAGENT_LLM_MODEL"
+                    "Custom LLM requires DIFFHIVE_LLM_BASE_URL, "
+                    "DIFFHIVE_LLM_API_KEY and DIFFHIVE_LLM_MODEL"
                 )
             return {
                 "provider": "custom",
@@ -201,129 +201,129 @@ class Settings:
                 "model": self.llm_model,
                 "headers": {},
             }
-        raise ValueError("unsupported EVOAGENT_LLM_PROVIDER: %s" % self.llm_provider)
+        raise ValueError("unsupported DIFFHIVE_LLM_PROVIDER: %s" % self.llm_provider)
 
     def validate_evolution(self) -> None:
         if self.eval_min_cases > self.eval_max_cases:
-            raise ValueError("EVOAGENT_EVAL_MIN_CASES cannot exceed EVOAGENT_EVAL_MAX_CASES")
+            raise ValueError("DIFFHIVE_EVAL_MIN_CASES cannot exceed DIFFHIVE_EVAL_MAX_CASES")
         if not 0.0 <= self.eval_min_improvement <= 1.0:
-            raise ValueError("EVOAGENT_EVAL_MIN_IMPROVEMENT must be between 0 and 1")
+            raise ValueError("DIFFHIVE_EVAL_MIN_IMPROVEMENT must be between 0 and 1")
         if self.eval_min_holdout_cases > self.eval_max_cases:
-            raise ValueError("EVOAGENT_EVAL_MIN_HOLDOUT_CASES cannot exceed EVOAGENT_EVAL_MAX_CASES")
+            raise ValueError("DIFFHIVE_EVAL_MIN_HOLDOUT_CASES cannot exceed DIFFHIVE_EVAL_MAX_CASES")
         if not 0.0 <= self.eval_max_metric_regression <= 1.0:
-            raise ValueError("EVOAGENT_EVAL_MAX_METRIC_REGRESSION must be between 0 and 1")
+            raise ValueError("DIFFHIVE_EVAL_MAX_METRIC_REGRESSION must be between 0 and 1")
         if self.auth_required and len(self.auth_secret.encode("utf-8")) < 32:
             raise ValueError(
-                "EVOAGENT_AUTH_SECRET must contain at least 32 bytes when authentication is enabled"
+                "DIFFHIVE_AUTH_SECRET must contain at least 32 bytes when authentication is enabled"
             )
         if bool(self.bootstrap_admin_username) != bool(self.bootstrap_admin_password):
             raise ValueError("bootstrap admin username and password must be configured together")
         if not 0.0 <= self.alert_failure_rate <= 1.0:
-            raise ValueError("EVOAGENT_ALERT_FAILURE_RATE must be between 0 and 1")
+            raise ValueError("DIFFHIVE_ALERT_FAILURE_RATE must be between 0 and 1")
         if self.llm_input_cost_per_million < 0 or self.llm_output_cost_per_million < 0:
             raise ValueError("LLM token prices cannot be negative")
         if self.evaluation_min_public_prs < 300:
-            raise ValueError("EVOAGENT_EVALUATION_MIN_PUBLIC_PRS must be at least 300")
+            raise ValueError("DIFFHIVE_EVALUATION_MIN_PUBLIC_PRS must be at least 300")
 
     @classmethod
     def from_env(cls) -> "Settings":
         return cls(
-            host=os.getenv("EVOAGENT_HOST", "127.0.0.1"),
-            port=_int("EVOAGENT_PORT", 8080),
-            db_path=os.getenv("EVOAGENT_DB_PATH", "evoagent.db"),
-            max_diff_bytes=_int("EVOAGENT_MAX_DIFF_BYTES", 1024 * 1024),
-            max_steps=_int("EVOAGENT_MAX_STEPS", 8),
-            timeout_seconds=_int("EVOAGENT_TIMEOUT_SECONDS", 120),
-            llm_base_url=os.getenv("EVOAGENT_LLM_BASE_URL", "").rstrip("/"),
-            llm_api_key=os.getenv("EVOAGENT_LLM_API_KEY", ""),
-            llm_model=os.getenv("EVOAGENT_LLM_MODEL", ""),
-            github_webhook_secret=os.getenv("EVOAGENT_GITHUB_WEBHOOK_SECRET", ""),
-            github_token=os.getenv("EVOAGENT_GITHUB_TOKEN", ""),
-            auto_post_review=_bool("EVOAGENT_AUTO_POST_REVIEW"),
-            database_url=os.getenv("EVOAGENT_DATABASE_URL", ""),
-            redis_url=os.getenv("EVOAGENT_REDIS_URL", ""),
-            async_workers=_int("EVOAGENT_ASYNC_WORKERS", 2),
-            memory_enabled=_bool("EVOAGENT_MEMORY_ENABLED", True),
-            memory_recall_limit=_int("EVOAGENT_MEMORY_RECALL_LIMIT", 6),
+            host=os.getenv("DIFFHIVE_HOST", "127.0.0.1"),
+            port=_int("DIFFHIVE_PORT", 8080),
+            db_path=os.getenv("DIFFHIVE_DB_PATH", "diffhive.db"),
+            max_diff_bytes=_int("DIFFHIVE_MAX_DIFF_BYTES", 1024 * 1024),
+            max_steps=_int("DIFFHIVE_MAX_STEPS", 8),
+            timeout_seconds=_int("DIFFHIVE_TIMEOUT_SECONDS", 120),
+            llm_base_url=os.getenv("DIFFHIVE_LLM_BASE_URL", "").rstrip("/"),
+            llm_api_key=os.getenv("DIFFHIVE_LLM_API_KEY", ""),
+            llm_model=os.getenv("DIFFHIVE_LLM_MODEL", ""),
+            github_webhook_secret=os.getenv("DIFFHIVE_GITHUB_WEBHOOK_SECRET", ""),
+            github_token=os.getenv("DIFFHIVE_GITHUB_TOKEN", ""),
+            auto_post_review=_bool("DIFFHIVE_AUTO_POST_REVIEW"),
+            database_url=os.getenv("DIFFHIVE_DATABASE_URL", ""),
+            redis_url=os.getenv("DIFFHIVE_REDIS_URL", ""),
+            async_workers=_int("DIFFHIVE_ASYNC_WORKERS", 2),
+            memory_enabled=_bool("DIFFHIVE_MEMORY_ENABLED", True),
+            memory_recall_limit=_int("DIFFHIVE_MEMORY_RECALL_LIMIT", 6),
             memory_working_ttl_seconds=_int(
-                "EVOAGENT_MEMORY_WORKING_TTL_SECONDS", 86400
+                "DIFFHIVE_MEMORY_WORKING_TTL_SECONDS", 86400
             ),
-            skills_dir=os.getenv("EVOAGENT_SKILLS_DIR", "skills"),
-            github_app_id=os.getenv("EVOAGENT_GITHUB_APP_ID", ""),
-            github_app_slug=os.getenv("EVOAGENT_GITHUB_APP_SLUG", ""),
-            github_private_key_path=os.getenv("EVOAGENT_GITHUB_PRIVATE_KEY_PATH", ""),
-            public_base_url=os.getenv("EVOAGENT_PUBLIC_BASE_URL", "http://127.0.0.1:8080").rstrip("/"),
-            llm_provider=os.getenv("EVOAGENT_LLM_PROVIDER", "local"),
-            deepseek_api_key=os.getenv("EVOAGENT_DEEPSEEK_API_KEY", ""),
-            openrouter_api_key=os.getenv("EVOAGENT_OPENROUTER_API_KEY", ""),
-            openrouter_site_url=os.getenv("EVOAGENT_OPENROUTER_SITE_URL", ""),
-            openrouter_app_name=os.getenv("EVOAGENT_OPENROUTER_APP_NAME", "EvoAgent"),
-            eval_max_cases=_int("EVOAGENT_EVAL_MAX_CASES", 5),
-            eval_min_cases=_int("EVOAGENT_EVAL_MIN_CASES", 3),
-            eval_min_improvement=float(os.getenv("EVOAGENT_EVAL_MIN_IMPROVEMENT", "0.01")),
-            eval_min_holdout_cases=_non_negative_int("EVOAGENT_EVAL_MIN_HOLDOUT_CASES", 2),
+            skills_dir=os.getenv("DIFFHIVE_SKILLS_DIR", "skills"),
+            github_app_id=os.getenv("DIFFHIVE_GITHUB_APP_ID", ""),
+            github_app_slug=os.getenv("DIFFHIVE_GITHUB_APP_SLUG", ""),
+            github_private_key_path=os.getenv("DIFFHIVE_GITHUB_PRIVATE_KEY_PATH", ""),
+            public_base_url=os.getenv("DIFFHIVE_PUBLIC_BASE_URL", "http://127.0.0.1:8080").rstrip("/"),
+            llm_provider=os.getenv("DIFFHIVE_LLM_PROVIDER", "local"),
+            deepseek_api_key=os.getenv("DIFFHIVE_DEEPSEEK_API_KEY", ""),
+            openrouter_api_key=os.getenv("DIFFHIVE_OPENROUTER_API_KEY", ""),
+            openrouter_site_url=os.getenv("DIFFHIVE_OPENROUTER_SITE_URL", ""),
+            openrouter_app_name=os.getenv("DIFFHIVE_OPENROUTER_APP_NAME", "DiffHive"),
+            eval_max_cases=_int("DIFFHIVE_EVAL_MAX_CASES", 5),
+            eval_min_cases=_int("DIFFHIVE_EVAL_MIN_CASES", 3),
+            eval_min_improvement=float(os.getenv("DIFFHIVE_EVAL_MIN_IMPROVEMENT", "0.01")),
+            eval_min_holdout_cases=_non_negative_int("DIFFHIVE_EVAL_MIN_HOLDOUT_CASES", 2),
             eval_max_metric_regression=float(
-                os.getenv("EVOAGENT_EVAL_MAX_METRIC_REGRESSION", "0")
+                os.getenv("DIFFHIVE_EVAL_MAX_METRIC_REGRESSION", "0")
             ),
-            auth_required=_bool("EVOAGENT_AUTH_REQUIRED", False),
-            auth_secret=os.getenv("EVOAGENT_AUTH_SECRET", ""),
-            bootstrap_admin_username=os.getenv("EVOAGENT_BOOTSTRAP_ADMIN_USERNAME", ""),
-            bootstrap_admin_password=os.getenv("EVOAGENT_BOOTSTRAP_ADMIN_PASSWORD", ""),
-            default_tenant_id=os.getenv("EVOAGENT_DEFAULT_TENANT_ID", "default"),
-            session_ttl_seconds=_int("EVOAGENT_SESSION_TTL_SECONDS", 3600),
-            webhook_max_age_seconds=_int("EVOAGENT_WEBHOOK_MAX_AGE_SECONDS", 600),
-            queue_max_attempts=_int("EVOAGENT_QUEUE_MAX_ATTEMPTS", 3),
-            queue_lease_seconds=_int("EVOAGENT_QUEUE_LEASE_SECONDS", 60),
-            repair_test_command=os.getenv("EVOAGENT_REPAIR_TEST_COMMAND", ""),
-            repair_verify_timeout_seconds=_int("EVOAGENT_REPAIR_VERIFY_TIMEOUT_SECONDS", 120),
-            otel_endpoint=os.getenv("EVOAGENT_OTEL_ENDPOINT", ""),
-            otel_service_name=os.getenv("EVOAGENT_OTEL_SERVICE_NAME", "evoagent"),
-            alert_failure_rate=float(os.getenv("EVOAGENT_ALERT_FAILURE_RATE", "0.20")),
-            alert_min_samples=_int("EVOAGENT_ALERT_MIN_SAMPLES", 10),
-            alert_window_seconds=_int("EVOAGENT_ALERT_WINDOW_SECONDS", 900),
-            alert_webhook_url=os.getenv("EVOAGENT_ALERT_WEBHOOK_URL", ""),
-            alert_smtp_host=os.getenv("EVOAGENT_ALERT_SMTP_HOST", ""),
-            alert_email_to=os.getenv("EVOAGENT_ALERT_EMAIL_TO", ""),
+            auth_required=_bool("DIFFHIVE_AUTH_REQUIRED", False),
+            auth_secret=os.getenv("DIFFHIVE_AUTH_SECRET", ""),
+            bootstrap_admin_username=os.getenv("DIFFHIVE_BOOTSTRAP_ADMIN_USERNAME", ""),
+            bootstrap_admin_password=os.getenv("DIFFHIVE_BOOTSTRAP_ADMIN_PASSWORD", ""),
+            default_tenant_id=os.getenv("DIFFHIVE_DEFAULT_TENANT_ID", "default"),
+            session_ttl_seconds=_int("DIFFHIVE_SESSION_TTL_SECONDS", 3600),
+            webhook_max_age_seconds=_int("DIFFHIVE_WEBHOOK_MAX_AGE_SECONDS", 600),
+            queue_max_attempts=_int("DIFFHIVE_QUEUE_MAX_ATTEMPTS", 3),
+            queue_lease_seconds=_int("DIFFHIVE_QUEUE_LEASE_SECONDS", 60),
+            repair_test_command=os.getenv("DIFFHIVE_REPAIR_TEST_COMMAND", ""),
+            repair_verify_timeout_seconds=_int("DIFFHIVE_REPAIR_VERIFY_TIMEOUT_SECONDS", 120),
+            otel_endpoint=os.getenv("DIFFHIVE_OTEL_ENDPOINT", ""),
+            otel_service_name=os.getenv("DIFFHIVE_OTEL_SERVICE_NAME", "diffhive"),
+            alert_failure_rate=float(os.getenv("DIFFHIVE_ALERT_FAILURE_RATE", "0.20")),
+            alert_min_samples=_int("DIFFHIVE_ALERT_MIN_SAMPLES", 10),
+            alert_window_seconds=_int("DIFFHIVE_ALERT_WINDOW_SECONDS", 900),
+            alert_webhook_url=os.getenv("DIFFHIVE_ALERT_WEBHOOK_URL", ""),
+            alert_smtp_host=os.getenv("DIFFHIVE_ALERT_SMTP_HOST", ""),
+            alert_email_to=os.getenv("DIFFHIVE_ALERT_EMAIL_TO", ""),
             continuous_eval_seconds=_non_negative_int(
-                "EVOAGENT_CONTINUOUS_EVAL_SECONDS", 0
+                "DIFFHIVE_CONTINUOUS_EVAL_SECONDS", 0
             ),
-            agent_token_budget=_int("EVOAGENT_AGENT_TOKEN_BUDGET", 8000),
-            agent_time_budget_seconds=_int("EVOAGENT_AGENT_TIME_BUDGET_SECONDS", 60),
+            agent_token_budget=_int("DIFFHIVE_AGENT_TOKEN_BUDGET", 8000),
+            agent_time_budget_seconds=_int("DIFFHIVE_AGENT_TIME_BUDGET_SECONDS", 60),
             agent_context_window_tokens=_int(
-                "EVOAGENT_AGENT_CONTEXT_WINDOW_TOKENS", 32768
+                "DIFFHIVE_AGENT_CONTEXT_WINDOW_TOKENS", 32768
             ),
             agent_context_input_tokens=_int(
-                "EVOAGENT_AGENT_CONTEXT_INPUT_TOKENS", 20000
+                "DIFFHIVE_AGENT_CONTEXT_INPUT_TOKENS", 20000
             ),
             context_diff_token_budget=_int(
-                "EVOAGENT_CONTEXT_DIFF_TOKEN_BUDGET", 12000
+                "DIFFHIVE_CONTEXT_DIFF_TOKEN_BUDGET", 12000
             ),
             context_observation_token_budget=_int(
-                "EVOAGENT_CONTEXT_OBSERVATION_TOKEN_BUDGET", 4000
+                "DIFFHIVE_CONTEXT_OBSERVATION_TOKEN_BUDGET", 4000
             ),
             context_recent_observations=_non_negative_int(
-                "EVOAGENT_CONTEXT_RECENT_OBSERVATIONS", 2
+                "DIFFHIVE_CONTEXT_RECENT_OBSERVATIONS", 2
             ),
             context_map_chunk_tokens=_int(
-                "EVOAGENT_CONTEXT_MAP_CHUNK_TOKENS", 3000
+                "DIFFHIVE_CONTEXT_MAP_CHUNK_TOKENS", 3000
             ),
             enabled_agents=os.getenv(
-                "EVOAGENT_ENABLED_AGENTS",
+                "DIFFHIVE_ENABLED_AGENTS",
                 "lead,security,correctness-reliability,critic",
             ),
             llm_input_cost_per_million=float(
-                os.getenv("EVOAGENT_LLM_INPUT_COST_PER_MILLION", "0")
+                os.getenv("DIFFHIVE_LLM_INPUT_COST_PER_MILLION", "0")
             ),
             llm_output_cost_per_million=float(
-                os.getenv("EVOAGENT_LLM_OUTPUT_COST_PER_MILLION", "0")
+                os.getenv("DIFFHIVE_LLM_OUTPUT_COST_PER_MILLION", "0")
             ),
             evaluation_min_public_prs=_int(
-                "EVOAGENT_EVALUATION_MIN_PUBLIC_PRS", 300
+                "DIFFHIVE_EVALUATION_MIN_PUBLIC_PRS", 300
             ),
             evaluation_min_f1_improvement=float(
-                os.getenv("EVOAGENT_EVALUATION_MIN_F1_IMPROVEMENT", "0.03")
+                os.getenv("DIFFHIVE_EVALUATION_MIN_F1_IMPROVEMENT", "0.03")
             ),
             evaluation_min_high_risk_improvement=float(
-                os.getenv("EVOAGENT_EVALUATION_MIN_HIGH_RISK_IMPROVEMENT", "0.05")
+                os.getenv("DIFFHIVE_EVALUATION_MIN_HIGH_RISK_IMPROVEMENT", "0.05")
             ),
         )

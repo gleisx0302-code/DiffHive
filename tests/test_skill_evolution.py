@@ -3,16 +3,16 @@ import os
 import tempfile
 import unittest
 
-from evoagent.config import Settings
-from evoagent.diff_parser import parse_unified_diff
-from evoagent.service import ReviewService
-from evoagent.skill_evolution import (
+from diffhive.config import Settings
+from diffhive.diff_parser import parse_unified_diff
+from diffhive.service import ReviewService
+from diffhive.skill_evolution import (
     AgentSkillReplayReviewer,
     SkillEvolutionEngine,
     validate_artifact,
 )
-from evoagent.skills import AgentSkill, SkillRegistry
-from evoagent.store import TaskStore
+from diffhive.skills import AgentSkill, SkillRegistry
+from diffhive.store import TaskStore
 
 
 RISK_DIFF = "--- a/a.py\n+++ b/a.py\n@@ -1 +1 @@\n-old\n+dangerous_call(data)\n"

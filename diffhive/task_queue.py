@@ -14,9 +14,9 @@ class PermanentTaskError(RuntimeError):
 
 
 class TaskQueue:
-    STREAM = "evoagent:review:stream"
-    DLQ = "evoagent:review:dlq"
-    GROUP = "evoagent-workers"
+    STREAM = "diffhive:review:stream"
+    DLQ = "diffhive:review:dlq"
+    GROUP = "diffhive-workers"
 
     def __init__(
         self, handler: Callable[[Dict[str, Any]], None], workers: int = 2,
@@ -28,7 +28,7 @@ class TaskQueue:
         self.max_attempts = max_attempts
         self.lease_seconds = lease_seconds
         self.on_dead_letter = on_dead_letter
-        self._executor = ThreadPoolExecutor(max_workers=workers, thread_name_prefix="evoagent-worker")
+        self._executor = ThreadPoolExecutor(max_workers=workers, thread_name_prefix="diffhive-worker")
         self._redis = None
         self._memory: queue.Queue = queue.Queue()
         self._memory_dlq = []

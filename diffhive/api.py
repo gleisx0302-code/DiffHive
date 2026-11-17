@@ -34,7 +34,7 @@ WEB_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "web"))
 class ApiHandler(BaseHTTPRequestHandler):
     service: ReviewService
     settings: Settings
-    server_version = "EvoAgent/0.3"
+    server_version = "DiffHive/0.3"
 
     def log_message(self, fmt: str, *args: Any) -> None:
         print("%s - %s" % (self.address_string(), fmt % args))
@@ -255,7 +255,7 @@ class ApiHandler(BaseHTTPRequestHandler):
             return
         if path == "/github/install":
             if not self.settings.github_app_slug:
-                self._send_json(503, {"error": "EVOAGENT_GITHUB_APP_SLUG is not configured"})
+                self._send_json(503, {"error": "DIFFHIVE_GITHUB_APP_SLUG is not configured"})
                 return
             self.send_response(302)
             self.send_header("Location", "https://github.com/apps/%s/installations/new" % self.settings.github_app_slug)
@@ -574,7 +574,7 @@ def run() -> None:
     service = ReviewService(settings)
     handler = type("ConfiguredApiHandler", (ApiHandler,), {"service": service, "settings": settings})
     server = ThreadingHTTPServer((settings.host, settings.port), handler)
-    print("EvoAgent dashboard: http://%s:%d" % (settings.host, settings.port))
+    print("DiffHive dashboard: http://%s:%d" % (settings.host, settings.port))
     print("Persistence: %s | Queue: %s | Orchestrator: %s" % (
         "postgresql" if settings.database_url else "sqlite", service.queue.backend, service.reviewer.name
     ))
